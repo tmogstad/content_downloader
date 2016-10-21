@@ -31,7 +31,7 @@ Example content_downloader.conf:
     password=p@ssw0rd123
     filedir=/home/myuser/contentpacks
 
-Usage
+Usage - content_downloader.py
 -----
 
 Run the python file like this:
@@ -57,6 +57,25 @@ Possible values for `-p` argument:
 
 Note: The *wildfire* package is for PAN-OS 7.0 and lower, the *wildfire2*
 package is for PAN-OS 7.1 and higher.
+
+Usage - software-downloader.py
+-----
+Run the script: 
+
+    python software-downloader.py
+
+Navigate using text based menu to download software.
+
+Logging level can be set using:
+
+    python software-downloader.py -l LOGLEVEL
+
+Valid log levels are:
+* DEBUG
+* INFO
+* WARNING
+* ERROR
+* CRITICAL
 
 Disclaimer
 ----------
