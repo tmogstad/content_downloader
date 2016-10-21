@@ -195,6 +195,9 @@ class ContentDownloader(object):
         elif result.find("<h4>You are not authorized to perform this action.</h4>") != -1:
             needlogin = True
             logging.debug("Got not authorized page")
+        elif result.find("An unexpected error has occurred.") != -1:
+            needlogin = True
+            logging.debug("Got unexpected error page")
         if needlogin:
             logging.info("Not logged in.")
             self.login()
