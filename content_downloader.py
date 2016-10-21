@@ -16,6 +16,11 @@
 
 # Author: Brian Torres-Gil <btorres-gil@paloaltonetworks.com>
 
+# Changes
+# 2016-10 Tor Mogstad <torm@datequipment.no>
+# Added varibale and methods to support download of software updates
+#  - Added global varaible in class ContentDownloader named SOFTWARE_URL
+#  - Added methods in class ContentDownloader named get_all_releases and download_software
 
 """Palo Alto Networks dynamic content update downloader
 
@@ -78,7 +83,8 @@ class ContentDownloader(object):
 
     SUPPORT_URL = "https://support.paloaltonetworks.com"
     UPDATE_URL = "https://support.paloaltonetworks.com/Updates/DynamicUpdates"
-
+    SOFTWARE_URL = "https://support.paloaltonetworks.com/Updates/SoftwareUpdates/"
+    
     def __init__(self, username, password, package="appthreat", debug=False):
         if package is None:
             package = "appthreat"
@@ -178,8 +184,53 @@ class ContentDownloader(object):
 
     def _save_cookies(self):
         self.cj.save("cookies.txt", ignore_discard=True, ignore_expires=True)
+        
+    def get_all_releases(self):
+        logging.info("Checking for available main releases:")
+        result = self._check_software()
+        needlogin = False
+        if result.find("<h1>Single Sign On</h1>") != -1:
+            needlogin = True
+            logging.debug("Got single sign on page")
+        elif result.find("<h4>You are not authorized to perform this action.</h4>") != -1:
+            needlogin = True
+            logging.debug("Got not authorized page")
+        if needlogin:
+            logging.info("Not logged in.")
+            self.login()
+            logging.info("Checking for new content updates (2nd attempt)")
+            result = self._check_software()
+        download_regex = "https://downloads.paloaltonetworks.com/software"
+        logging.info(download_regex)
+        try:
+            releases = list(self.browser.links(url_regex=download_regex))
+        except IndexError:
+            raise UpdateError("Unable to get content update list")
+        release_list = []
+        for release in releases:
+            link = release.url
+            text = release.text
+            if ".pdf" in text: continue # This is release notes, which we don't want.
+            else:
+                this_release = [text,link]
+                release_list.append(this_release)
+        return release_list
 
+    def _check_software(self):
+        self.browser.open(self.SOFTWARE_URL)
+        temp = self.browser.response().read()
+        logging.info(temp)
+        return temp
 
+    def download_software(self, download_dir,url):
+        os.chdir(download_dir)
+        filename = url.split("/")
+        filename = filename[len(filename)-1]
+        filename = filename.split("?")[0]
+        self.browser.retrieve(url,filename)
+        return filename
+
+    
 def get_config(filename):
     config = ConfigParser.SafeConfigParser({"filedir": ""})
     config.read(filename)
