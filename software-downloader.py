@@ -32,9 +32,7 @@ from contentdownloader import LoginError
 from contentdownloader import UpdateError
 from contentdownloader import UnknownPackage
 from contentdownloader import ContentDownloader
-import glob
 import sys
-import time
 import os
 import re
 import json
