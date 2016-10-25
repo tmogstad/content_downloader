@@ -180,7 +180,6 @@ def generate_release_list(releases):
 			readable_name = READABLE_FORMAT[name]
 		else:
 			readable_name = name
-			print "<%s>" % (readable_name)
 		this_release = [name, main_version, complete_version, link, readable_name]
 		complete_list.append(this_release)
 
